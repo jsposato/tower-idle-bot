@@ -1,0 +1,1 @@
+docker run -e LABEL_STUDIO_LOCAL_FILES_SERVING_ENABLED=true -e LABEL_STUDIO_LOCAL_FILES_DOCUMENT_ROOT=/label-studio/data -it -p 8654:8080 -v $(pwd)/label-data:/label-studio/data heartexlabs/label-studio:latest

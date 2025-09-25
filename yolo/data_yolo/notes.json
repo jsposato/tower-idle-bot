@@ -1,0 +1,141 @@
+{
+  "categories": [
+    {
+      "id": 0,
+      "name": "B_All_Coin_Bonuses"
+    },
+    {
+      "id": 1,
+      "name": "B_Choose_Perks"
+    },
+    {
+      "id": 2,
+      "name": "B_Failed_To_Load_Ad_Ok"
+    },
+    {
+      "id": 3,
+      "name": "B_Floating_Gem"
+    },
+    {
+      "id": 4,
+      "name": "B_Game_Over_Home"
+    },
+    {
+      "id": 5,
+      "name": "B_Game_Over_Retry"
+    },
+    {
+      "id": 6,
+      "name": "B_Gem_Ad"
+    },
+    {
+      "id": 7,
+      "name": "B_Menu_Action_Required"
+    },
+    {
+      "id": 8,
+      "name": "B_Menu_Closed"
+    },
+    {
+      "id": 9,
+      "name": "B_Menu_Daily_Action_Required"
+    },
+    {
+      "id": 10,
+      "name": "B_Menu_Open"
+    },
+    {
+      "id": 11,
+      "name": "B_New_Perk"
+    },
+    {
+      "id": 12,
+      "name": "B_Perk_Button"
+    },
+    {
+      "id": 13,
+      "name": "B_Perk_Label"
+    },
+    {
+      "id": 14,
+      "name": "B_Perk_Window"
+    },
+    {
+      "id": 15,
+      "name": "B_Selected_Perks"
+    },
+    {
+      "id": 16,
+      "name": "B_Shop_Action_Required"
+    },
+    {
+      "id": 17,
+      "name": "B_Slot"
+    },
+    {
+      "id": 18,
+      "name": "B_Slot_Button"
+    },
+    {
+      "id": 19,
+      "name": "B_Slot_Label"
+    },
+    {
+      "id": 20,
+      "name": "B_Slot_Maxed"
+    },
+    {
+      "id": 21,
+      "name": "B_Slot_Price"
+    },
+    {
+      "id": 22,
+      "name": "B_Slot_TooExpensive"
+    },
+    {
+      "id": 23,
+      "name": "B_Slot_Value"
+    },
+    {
+      "id": 24,
+      "name": "B_Tab_Attack"
+    },
+    {
+      "id": 25,
+      "name": "B_Tab_Defense"
+    },
+    {
+      "id": 26,
+      "name": "B_Tab_Ult_Weapon"
+    },
+    {
+      "id": 27,
+      "name": "B_Tab_Utility"
+    },
+    {
+      "id": 28,
+      "name": "GA_Ad_Black_Screen"
+    },
+    {
+      "id": 29,
+      "name": "GA_Claim_Gems"
+    },
+    {
+      "id": 30,
+      "name": "GA_Close_Ad"
+    },
+    {
+      "id": 31,
+      "name": "O_Battle"
+    },
+    {
+      "id": 32,
+      "name": "O_Gem_Ad"
+    }
+  ],
+  "info": {
+    "year": 2025,
+    "version": "1.0",
+    "contributor": "Label Studio"
+  }
+}

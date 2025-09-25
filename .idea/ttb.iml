@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/.idea" />
+      <excludeFolder url="file://$MODULE_DIR$/apks" />
+      <excludeFolder url="file://$MODULE_DIR$/dockerify-android" />
+      <excludeFolder url="file://$MODULE_DIR$/redroid-11-data" />
+      <excludeFolder url="file://$MODULE_DIR$/redroid-script" />
+      <excludeFolder url="file://$MODULE_DIR$/tessdata" />
+    </content>
+    <orderEntry type="jdk" jdkName="Python 3.13" jdkType="Python SDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>
