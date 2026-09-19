@@ -68,7 +68,17 @@ The bot has two halves that can live on different machines:
 4. Appium: `npm install -g appium && appium driver install uiautomator2`. Find the path to Appium's `main.js` with `npm root -g` (it is `<npm root>/appium/build/lib/main.js`).
 5. Optional but useful: `brew install scrcpy` to watch the device.
 
-On any platform, `Device.java` currently hardcodes the original author's `ANDROID_HOME`, Appium `main.js` path, and device serial; edit those constants to match your machine until [#1](https://github.com/jsposato/tower-idle-bot/issues/1) lands.
+#### Configuring the controller
+
+Machine-specific settings live in `backend/src/main/resources/application.properties` under `ttb.*` and can be overridden with environment variables:
+
+| Property | Env var | Default | Meaning |
+|---|---|---|---|
+| `ttb.device-id` | `TTB_DEVICE_ID` | `localhost:5555` | ADB serial of the redroid container |
+| `ttb.android-home` | `TTB_ANDROID_HOME` | `$ANDROID_HOME` | Android SDK root passed to Appium; `platform-tools/adb` under it is used when present |
+| `ttb.appium-js-path` | `TTB_APPIUM_JS_PATH` | *(blank)* | Appium's `build/lib/main.js`; blank lets the Appium Java client find it via `$APPIUM_PATH` or `npm root -g` |
+
+With `ANDROID_HOME` exported and Appium installed globally, no edits are needed: `cd backend && ./gradlew bootRun`. The bot fails fast at startup with a message naming the property if any of these is wrong.
 
 ### Setting up the container
 
