@@ -41,7 +41,6 @@ The Python scripts hardcode `sys.path` entries for the original author's pipx ve
 Several absolute paths belong to the original author's Linux box and must be changed to run anywhere:
 
 - `backend/src/main/java/de/ttd/ttb/Device.java`: `ANDROID_HOME`, `APPIUM_JS_PATH`, `DEVICE_ID`
-- `backend/local.properties`: `sdk.dir`
 - `yolo/*.py`: `sys.path.append(...)` lines
 
 ## Architecture
