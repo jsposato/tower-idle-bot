@@ -45,26 +45,59 @@ If you just want to get a lot of medals and gems etc. you would probably be more
 
 ## Installation
 
-### Setting up the backend system
+The bot has two halves that can live on different machines:
+
+* **The controller** — the Java backend in `backend/`, plus Appium, `adb`, and tesseract. Runs anywhere Java 21 runs (macOS, Linux).
+* **The Android container** — redroid. **Must run on a Linux kernel with the `binder` modules.** Docker Desktop on macOS cannot host it: its LinuxKit VM has no binder support, so `docker compose up` fails at boot. On a Mac, run redroid on a remote Linux box or inside a Linux VM and point `adb connect` at it.
+
+### Setting up the controller
+
+#### Arch Linux (original setup)
 
 1. Install tesseract: `yay -S tesseract tesseract-data-eng`
 2. Install appium: `npm install -g appium`
-3. Install appium drive: `npm install -g appium-uiatomator2-driver` && `appium driver install uiautomator2`
-4. Install Android Sdk and plattform tools, it references my system paths in Device.java, you have to change these
+3. Install the uiautomator2 driver: `appium driver install uiautomator2`
+4. Install the Android SDK platform-tools and build-tools and set `ANDROID_HOME`.
+
+#### macOS
+
+1. JDK 21: `brew install openjdk@21` (or use sdkman). Gradle's toolchain block requires 21 exactly.
+2. Tesseract: `brew install tesseract`. tess4j loads `libtesseract` through JNA; if it reports it cannot find the library, pass `-Djna.library.path=/opt/homebrew/lib` (Apple Silicon) or `/usr/local/lib` (Intel) when running the bot. The English model is already in `tessdata/` at the repo root.
+3. Android SDK: `brew install --cask android-commandlinetools`, then
+   `sdkmanager "platform-tools" "build-tools;35.0.0"` and export `ANDROID_HOME` (Homebrew puts the SDK under `/opt/homebrew/share/android-commandlinetools`). Appium's uiautomator2 driver needs both `adb` and `apksigner` from these.
+4. Appium: `npm install -g appium && appium driver install uiautomator2`. Find the path to Appium's `main.js` with `npm root -g` (it is `<npm root>/appium/build/lib/main.js`).
+5. Optional but useful: `brew install scrcpy` to watch the device.
+
+On any platform, `Device.java` currently hardcodes the original author's `ANDROID_HOME`, Appium `main.js` path, and device serial; edit those constants to match your machine until [#1](https://github.com/jsposato/tower-idle-bot/issues/1) lands.
 
 ### Setting up the container
 
-1. Generate the redroid image: `python redroid.py -a 11.0.0 -gmnw`
-2. Start the container and scrcpy into it: `adb connect localhost:5555` and `scrcpy -s localhost:5555`
-3. Register the device with google
-4. Connect as root: `adb -s localhost:5555 root`
-5. Query the android_id:
-   `adb -s localhost:5555 shell 'sqlite3 /data/data/com.google.android.gsf/databases/gservices.db "select * from main where name = \"android_id\";"'`
-6. Register the device [at Google](https://www.google.com/android/uncertified)
-7. Login in to Google Play Services
-8. Install the current version of `The Tower`
-9. Log in to your `The Tower`-Account
-10. Configure the system time to match your phones to prevent that the Gem button is not hidden
+#### Where to run redroid
+
+* **Linux host** (Ubuntu 20.04+, Arch, etc.): works as-is. Check `ls /dev/binder*`; if missing, `modprobe binder_linux devices="binder,hwbinder,vndbinder"` and see the [redroid deploy notes](https://github.com/remote-android/redroid-doc/blob/master/deploy/README.md) for your distro.
+* **macOS with a Linux VM**: Colima or Lima with an Ubuntu image (`colima start --vm-type vz --cpu 4 --memory 8`) gives you a Docker daemon inside a kernel that has binder. Run the compose file there and `adb connect` to the VM's forwarded port. Software rendering only — see the GPU note below.
+* **macOS with a remote Linux box**: run the container there, expose port 5555 over an SSH tunnel (`ssh -L 5555:127.0.0.1:5555 host`), then `adb connect localhost:5555` locally. `docker-compose.yml` binds 5555 to `127.0.0.1` on purpose so the device is never exposed to the network.
+
+#### docker-compose.yml flags to adjust
+
+The compose file is written for an **x86_64 host with a host GPU**. Two groups of flags are host-specific and are commented in the file:
+
+* `androidboot.redroid_gpu_mode=host` needs `/dev/dri` on the host. In a VM or on a headless server, change it to `guest` (software rendering). It is slower but fine for farming; the README's vision section already assumes a CPU-only server.
+* The `ro.product.cpu.abilist*`, `ro.dalvik.vm.isa.*`, `ro.enable.native.bridge.exec`, `ro.dalvik.vm.native.bridge` and `ro.ndk_translation.version` lines enable **libndk_translation** so ARM-only APKs run on an x86_64 container. On an ARM64 host (Apple Silicon VM, ARM server) drop all of them and build an arm64 image; the `-n` (ndk) option in redroid-script is x86_64-only.
+
+#### Steps
+
+1. Clone [redroid-script](https://github.com/ayasa520/redroid-script) and generate the image: `python redroid.py -a 11.0.0 -gmnw` (`-g` GApps, `-m` Magisk, `-n` ndk translation — x86_64 only, `-w` Widevine). The output tag must match the `image:` in `docker-compose.yml`.
+2. Start the container: `docker compose up -d`, then `adb connect localhost:5555` and `scrcpy -s localhost:5555`.
+3. Register the device with Google:
+   1. Connect as root: `adb -s localhost:5555 root`
+   2. Query the android_id:
+      `adb -s localhost:5555 shell 'sqlite3 /data/data/com.google.android.gsf/databases/gservices.db "select * from main where name = \"android_id\";"'`
+   3. Register it [at Google](https://www.google.com/android/uncertified)
+4. Log in to Google Play Services.
+5. Install the current version of `The Tower`.
+6. Log in to your `The Tower` account.
+7. Configure the system time to match your phone's, otherwise the Gem button stays hidden.
 
 ### Performance Settings
 
