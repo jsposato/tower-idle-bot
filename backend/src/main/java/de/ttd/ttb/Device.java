@@ -20,11 +20,12 @@ import java.net.URI;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import javax.imageio.ImageIO;
+import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.interactions.PointerInput;
 import org.openqa.selenium.interactions.Sequence;
@@ -32,11 +33,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class Device {
-  private static final String ANDROID_HOME = "/home/shino/Android/Sdk";
-  private static final String DEVICE_ID = "localhost:5555";
-  private static final String APPIUM_JS_PATH =
-      "/home/shino/.nvm/versions/node/v22.14.0/lib/node_modules/appium/build/lib/main.js";
+  private final TtbProperties properties;
 
   private IDevice device;
 
@@ -192,6 +191,7 @@ public class Device {
   @PostConstruct
   private void init() throws Exception {
     this.initializing = true;
+    this.properties.validate();
 
     // 3 ways to control the android device
     // Using ADB via the bridge
@@ -202,12 +202,16 @@ public class Device {
 
     device =
         Arrays.stream(adb.getDevices())
-            .filter(it -> it.getSerialNumber().equals(DEVICE_ID))
+            .filter(it -> it.getSerialNumber().equals(properties.deviceId()))
             .findFirst()
-            .orElseThrow(() -> new RuntimeException("Could not find device"));
+            .orElseThrow(
+                () ->
+                    new RuntimeException(
+                        "Could not find device " + properties.deviceId() + " via ADB"));
 
     // Using an open ADB Shell
-    ProcessBuilder builder = new ProcessBuilder("adb", "-s", DEVICE_ID, "shell");
+    ProcessBuilder builder =
+        new ProcessBuilder(properties.adbPath(), "-s", properties.deviceId(), "shell");
     this.process = builder.start();
     this.writer =
         new BufferedWriter(new java.io.OutputStreamWriter(this.process.getOutputStream()));
@@ -220,19 +224,14 @@ public class Device {
   }
 
   private void initAppium() throws Exception {
-    appiumDriverLocalService =
-        AppiumDriverLocalService.buildService(
-            new AppiumServiceBuilder()
-                .withArgument(() -> "--log-level", "error")
-                .withAppiumJS(new File(APPIUM_JS_PATH))
-                .withEnvironment(
-                    new HashMap<>() {
-                      {
-                        put("ANDROID_HOME", ANDROID_HOME);
-                      }
-                    }));
+    final var serviceBuilder =
+        new AppiumServiceBuilder()
+            .withArgument(() -> "--log-level", "error")
+            .withEnvironment(Map.of("ANDROID_HOME", properties.androidHome()));
+    properties.appiumJs().ifPresent(serviceBuilder::withAppiumJS);
+    appiumDriverLocalService = AppiumDriverLocalService.buildService(serviceBuilder);
     appiumDriverLocalService.start();
-    UiAutomator2Options options = new UiAutomator2Options().setUdid(DEVICE_ID);
+    UiAutomator2Options options = new UiAutomator2Options().setUdid(properties.deviceId());
     androidDriver = new AndroidDriver(new URI("http://127.0.0.1:4723").toURL(), options);
   }
 

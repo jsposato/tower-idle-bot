@@ -20,7 +20,7 @@ cd backend
 ./gradlew bootRun        # run the bot — requires a live device (see below)
 ```
 
-`./gradlew bootRun` and `TtbApplicationTests` (a `@SpringBootTest`) both need a real environment: an ADB device at `localhost:5555`, a running Appium install, `ttb.onnx` and `tessdata/` resolvable from the **working directory** (the paths are relative: `./ttb.onnx`, `tessdata`), and native OpenCV. Without these the Spring context fails in `Device.init()` / `YoloPrediction`'s static initializer. Expect the test to fail on a dev machine with no device; that is the pre-existing state, not a regression.
+`./gradlew bootRun` and `TtbApplicationTests` (a `@SpringBootTest`) both need a real environment: an ADB device at `ttb.device-id` (default `localhost:5555`), `ANDROID_HOME` set, a running Appium install, `ttb.onnx` and `tessdata/` resolvable from the **working directory** (the paths are relative: `./ttb.onnx`, `tessdata`), and native OpenCV. Without these the Spring context fails in `Device.init()` / `YoloPrediction`'s static initializer. Expect the test to fail on a dev machine with no device; that is the pre-existing state, not a regression.
 
 Device/emulator setup (redroid image, Google registration, Appium install) is documented step-by-step in `README.md`; `docker-compose.yml` runs the redroid container at 720x1280 @ 320dpi, 120fps — every hardcoded tap coordinate in the code assumes that resolution.
 
@@ -36,12 +36,11 @@ python detect.py         # pre-labels images in yolo/data/ into yolo/data_labele
 
 The Python scripts hardcode `sys.path` entries for the original author's pipx venvs (`/home/shino/...`); fix those before running.
 
-## Machine-specific paths to fix first
+## Machine-specific configuration
 
-Several absolute paths belong to the original author's Linux box and must be changed to run anywhere:
+Device settings (`ttb.device-id`, `ttb.android-home`, `ttb.appium-js-path`) are bound into the `TtbProperties` record from `application.properties` / `TTB_*` env vars; `Device.init()` calls `TtbProperties.validate()` before touching ADB so a bad path fails with a named property rather than an Appium stack trace. Keep hardware-touching validation there, not at bind time, so a device-less test context can still load the properties.
 
-- `backend/src/main/java/de/ttd/ttb/Device.java`: `ANDROID_HOME`, `APPIUM_JS_PATH`, `DEVICE_ID`
-- `yolo/*.py`: `sys.path.append(...)` lines
+Still hardcoded to the original author's Linux box: the `sys.path.append(...)` lines in `yolo/*.py`.
 
 ## Architecture
 
