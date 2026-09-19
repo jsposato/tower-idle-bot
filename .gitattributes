@@ -1,0 +1,19 @@
+# Normalize every text file to LF in the repo and on checkout. Most Java sources
+# were originally committed with CRLF, which turned any edit under
+# core.autocrlf=input into a whole-file diff (see #10).
+* text=auto eol=lf
+
+# Windows launcher scripts must stay CRLF.
+*.bat text eol=crlf
+
+# Binaries — never touch line endings.
+*.png binary
+*.jpg binary
+*.npy binary
+*.apk binary
+*.jar binary
+*.pt binary
+*.onnx binary
+*.zip binary
+*.sqlite3 binary
+*.traineddata binary
