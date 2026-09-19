@@ -97,7 +97,7 @@ The compose file is written for an **x86_64 host with a host GPU**. Two groups o
 
 #### Steps
 
-1. Clone [redroid-script](https://github.com/ayasa520/redroid-script) and generate the image: `python redroid.py -a 11.0.0 -gmnw` (`-g` GApps, `-m` Magisk, `-n` ndk translation — x86_64 only, `-w` Widevine). The output tag must match the `image:` in `docker-compose.yml`.
+1. Clone [redroid-script](https://github.com/ayasa520/redroid-script) (into `redroid-script/` at the repo root if you like — it is git-ignored) and generate the image: `python redroid.py -a 11.0.0 -gmnw` (`-g` GApps, `-m` Magisk, `-n` ndk translation — x86_64 only, `-w` Widevine). The output tag must match the `image:` in `docker-compose.yml`.
 2. Start the container: `docker compose up -d`, then `adb connect localhost:5555` and `scrcpy -s localhost:5555`.
 3. Register the device with Google:
    1. Connect as root: `adb -s localhost:5555 root`
